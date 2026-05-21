@@ -1,0 +1,8 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capability for the tab bar webview",
+  "windows": ["main"],
+  "webviews": ["tabbar"],
+  "permissions": ["core:default"]
+}
