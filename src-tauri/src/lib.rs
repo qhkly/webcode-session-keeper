@@ -5,7 +5,9 @@ use commands::tab_commands::{
     TAB_BAR_HEIGHT,
 };
 use commands::tab_commands::*;
-use tauri::{LogicalPosition, LogicalSize, Manager, TitleBarStyle, WebviewUrl};
+#[cfg(target_os = "macos")]
+use tauri::TitleBarStyle;
+use tauri::{LogicalPosition, LogicalSize, Manager, WebviewUrl};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -25,14 +27,15 @@ pub fn run() {
         .setup(|app| {
             let config = load_config_sync().expect("failed to load session keeper config");
 
-            let main_window = tauri::window::WindowBuilder::new(app, MAIN_WINDOW_LABEL)
+            let window_builder = tauri::window::WindowBuilder::new(app, MAIN_WINDOW_LABEL)
                 .title("Session Keeper")
                 .inner_size(1280.0, 800.0)
                 .min_inner_size(760.0, 420.0)
                 .resizable(true)
-                .transparent(true)
-                .title_bar_style(TitleBarStyle::Transparent)
-                .build()?;
+                .transparent(true);
+            #[cfg(target_os = "macos")]
+            let window_builder = window_builder.title_bar_style(TitleBarStyle::Transparent);
+            let main_window = window_builder.build()?;
 
             for tab in &config.tabs {
                 create_site_webview_on_window(&main_window, &tab.id, &tab.url)
